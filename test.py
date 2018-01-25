@@ -25,6 +25,8 @@ def batch_gd(x, y, eta):
     theta1 = []
     theta0.append(0)
     theta1.append(0)
+    cost1d = []
+    cost1d.append(cost_function([0,0], x, y))
     while True:
         theta0.append(0)
         theta1.append(0)
@@ -36,9 +38,10 @@ def batch_gd(x, y, eta):
         
         a1 = cost_function([theta0[len(theta0)-1], theta1[len(theta1)-1]], x, y)
         a2 = cost_function([theta0[len(theta0)-2], theta1[len(theta1)-2]], x, y)
-        print len(theta0), theta0[len(theta0)-1], theta1[len(theta1)-1], a1
-                
-        if (a1-a2 >= 0):
+        cost1d.append(a1)
+        print len(theta0), len(cost1d), theta0[len(theta0)-1], theta1[len(theta1)-1], cost1d[len(cost1d)-1]
+        
+        if (a2-a1 <= 0.00000001):
             '''cost2d = []
             for i in range(0, len(theta0)):
                 new = []
@@ -67,5 +70,5 @@ if __name__ == "__main__":
     print theta0[len(theta0)-1], theta1[len(theta1)-1]
     
     plt.scatter(x, y)
-    plt.plot(x, predicted)
+    plt.plot(x, predicted, color="red")
     plt.show()
