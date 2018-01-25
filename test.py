@@ -2,6 +2,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from mpl_toolkits.mplot3d import Axes3D
+'''fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')'''
 
 #CALCULATES THE VALUE OF J_THETA, GIVEN X, Y AND THETA VECTOR
 def cost_function(theta, x, y):
@@ -26,7 +29,7 @@ def batch_gd(x, y, eta):
     theta0.append(0)
     theta1.append(0)
     cost1d = []
-    cost1d.append(cost_function([0,0], x, y))
+    cost1d.append(cost_function([theta0[0], theta1[0]], x, y))
     while True:
         theta0.append(0)
         theta1.append(0)
@@ -39,15 +42,29 @@ def batch_gd(x, y, eta):
         a1 = cost_function([theta0[len(theta0)-1], theta1[len(theta1)-1]], x, y)
         a2 = cost_function([theta0[len(theta0)-2], theta1[len(theta1)-2]], x, y)
         cost1d.append(a1)
-        print len(theta0), len(cost1d), theta0[len(theta0)-1], theta1[len(theta1)-1], cost1d[len(cost1d)-1]
+        print len(theta1), cost1d[len(cost1d)-1]
         
-        if (a2-a1 <= 0.00000001):
-            '''cost2d = []
-            for i in range(0, len(theta0)):
-                new = []
-                for j in range(0, len(theta1)):
-                    new.append(cost_function([theta0[i], theta1[i]], x, y))
-                cost2d.append(new)'''
+        if (a2-a1 <= .0000001):
+            #cost2d = [[0]*(len(theta0)) for j in range(len(theta1))]
+            cost2d = np.zeros((len(theta0), len(theta1)))
+            si=0
+            sj=0
+            i=0
+            while si < len(theta0):
+                while sj < len(theta1):
+                    cost2d[si][sj] = cost2d[sj][si] = cost_function([theta0[si], theta1[sj]], x, y)
+                    sj = sj+1
+                    i=i+1
+                    print i
+                si = si + 1
+            plt.figure()
+            print "here"
+            cp = plt.contourf(theta0, theta1, cost2d)
+            print "dikhata hoon"
+            plt.show()
+            '''ax.plot_wireframe(theta0, theta1, cost2d)
+            plt.show()
+            print "there"'''
             return theta0, theta1
 
 if __name__ == "__main__":
@@ -63,7 +80,7 @@ if __name__ == "__main__":
     
     theta0, theta1 = batch_gd(x,y,0.0001)
     
-    predicted = []
+    '''predicted = []
     for i in range(0, len(x)):
         predicted.append(theta0[len(theta0)-1]+theta1[len(theta1)-1]*x[i])
     
@@ -71,4 +88,4 @@ if __name__ == "__main__":
     
     plt.scatter(x, y)
     plt.plot(x, predicted, color="red")
-    plt.show()
+    plt.show()'''
