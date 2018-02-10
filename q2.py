@@ -2,6 +2,13 @@ import numpy as np
 from numpy.linalg import inv
 import matplotlib.pyplot as plt
 
+def error_function(theta, x, y):
+    j_theta = 0
+    for i in range(0, len(x)):
+        j_theta+= (y[i] - (theta[0]+theta[1]*x[i]) ) ** 2
+    j_theta /= 2
+    return j_theta
+
 def cost_function(x, y, theta, plt):
     W = np.zeros((len(y), len(y)))
     costs_array = []
@@ -10,7 +17,7 @@ def cost_function(x, y, theta, plt):
     for el in x:
         #calcultes the matrix W for each x
         for sub in x:
-            cal = (((el[1] - sub[1])**2)/(2*0.56))
+            cal = (((el[1] - sub[1])**2)/(2*0.64))
             W[i][i] = np.exp(-cal)
             #print i, W[i][i]
             i = i+1

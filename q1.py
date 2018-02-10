@@ -5,8 +5,8 @@ import time
 from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
+ax = fig.add_subplot(211, projection='3d')
+ax1 = fig.add_subplot(212)
 #CALCULATES THE VALUE OF J_THETA, GIVEN X, Y AND THETA VECTOR
 def cost_function(theta, x, y):
     j_theta = 0
@@ -47,20 +47,21 @@ def batch_gd(x, y, eta):
         #print len(theta1), a1
         
         if (a1-a2 >= 0):
-            theta0_vals = np.linspace(min(theta0), 2*max(theta0), 100)
-            theta1_vals = np.linspace(min(theta1), 2*max(theta1), 100)
+            theta0_vals = np.linspace(-2, 2.5, 100)
+            theta1_vals = np.linspace(0, 2, 100)
             t0, t1 = np.meshgrid(theta0_vals, theta1_vals)
-            print theta0_vals.shape
             zs = np.array([cost_function([i, j], x, y) for i,j in zip(np.ravel(t0), np.ravel(t1))])
             Z = zs.reshape(100,100)
             ax.plot_surface(t0, t1, Z, rstride=1, cstride=1, color='b', alpha=0.5)
+            ax1.contour(t0, t1, Z, 80)
             ax.set_xlabel('theta 0')
             ax.set_ylabel('theta 1')
             ax.set_zlabel('error')
             
             for i, j, k in zip(theta0, theta1, cost1d):
                 ax.scatter(i, j, k, color='r')
-                plt.pause(0.0005)
+                ax1.scatter(i, j, k, color='r')
+                plt.pause(0.0001)
             plt.show()
             print theta0[len(theta0)-1], theta1[len(theta1)-1], cost_function([theta0[len(theta0)-1], theta1[len(theta1)-1]], x, y)
             return theta0[len(theta0)-1], theta1[len(theta1)-1]
