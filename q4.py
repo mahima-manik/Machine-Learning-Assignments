@@ -112,7 +112,7 @@ if __name__ == "__main__":
     G = (x1**2) * a + 2*e*x1 - D
     xx = (d * (x2**2).T) + np.matmul(F, x2.T) + G
     print xx.shape
-    plt.plot(x1, xx/101)
+    plt.plot(x2, xx/101)
     plt.show()
     print (x2**2).shape, F.shape, np.matmul(F.T, x2).shape, G.shape
     #theta = np.matmul(inv(sigma), (mean1-mean0).T)

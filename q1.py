@@ -31,7 +31,7 @@ def batch_gd(x, y, eta):
     theta1.append(0)
     cost1d = []
     cost1d.append(cost_function([theta0[0], theta1[0]], x, y))
-    
+    iter = 0
     while True:
         theta0.append(0)
         theta1.append(0)
@@ -44,26 +44,30 @@ def batch_gd(x, y, eta):
         a1 = cost_function([theta0[len(theta0)-1], theta1[len(theta1)-1]], x, y)
         a2 = cost_function([theta0[len(theta0)-2], theta1[len(theta1)-2]], x, y)
         cost1d.append(a1)
+        iter = iter + 1
         #print len(theta1), a1
         
         if (a1-a2 >= 0):
-            theta0_vals = np.linspace(-2, 2.5, 100)
-            theta1_vals = np.linspace(0, 2, 100)
+            print theta0[len(theta0)-2], theta1[len(theta1)-2], a2, iter
+            
+            theta0_vals = np.linspace(0, 2, 50)
+            theta1_vals = np.linspace(-0.5, 0.5, 50)
             t0, t1 = np.meshgrid(theta0_vals, theta1_vals)
             zs = np.array([cost_function([i, j], x, y) for i,j in zip(np.ravel(t0), np.ravel(t1))])
-            Z = zs.reshape(100,100)
+            Z = zs.reshape(50,50)
             ax.plot_surface(t0, t1, Z, rstride=1, cstride=1, color='b', alpha=0.5)
-            ax1.contour(t0, t1, Z, 80)
+            ax1.contour(t0, t1, Z)
             ax.set_xlabel('theta 0')
             ax.set_ylabel('theta 1')
-            ax.set_zlabel('error')
+            ax.set_zlabel('J theta')
+            ax1.set_xlabel('theta 0')
+            ax1.set_ylabel('theta 1')
             
             for i, j, k in zip(theta0, theta1, cost1d):
-                ax.scatter(i, j, k, color='r')
-                ax1.scatter(i, j, k, color='r')
-                plt.pause(0.0001)
+                ax.scatter(i, j, k)
+                ax1.scatter(i, j, k)
+                plt.pause(0.2)
             plt.show()
-            print theta0[len(theta0)-1], theta1[len(theta1)-1], cost_function([theta0[len(theta0)-1], theta1[len(theta1)-1]], x, y)
             return theta0[len(theta0)-1], theta1[len(theta1)-1]
 
 if __name__ == "__main__":
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     x = np.array(x)
     x = (x-med)/std_x
     
-    theta0, theta1 = batch_gd(x,y,0.0001)
+    theta0, theta1 = batch_gd(x,y,0.001)
     
     '''predicted = []
     for i in range(0, len(x)):
