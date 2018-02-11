@@ -5,8 +5,9 @@ import time
 from mpl_toolkits.mplot3d import Axes3D
 
 fig = plt.figure()
-ax = fig.add_subplot(211, projection='3d')
-ax1 = fig.add_subplot(212)
+fig1 = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax1 = fig1.add_subplot(111)
 #CALCULATES THE VALUE OF J_THETA, GIVEN X, Y AND THETA VECTOR
 def cost_function(theta, x, y):
     j_theta = 0
@@ -49,24 +50,28 @@ def batch_gd(x, y, eta):
         
         if (a1-a2 >= 0):
             print theta0[len(theta0)-2], theta1[len(theta1)-2], a2, iter
-            
             theta0_vals = np.linspace(0, 2, 50)
             theta1_vals = np.linspace(-0.5, 0.5, 50)
             t0, t1 = np.meshgrid(theta0_vals, theta1_vals)
             zs = np.array([cost_function([i, j], x, y) for i,j in zip(np.ravel(t0), np.ravel(t1))])
             Z = zs.reshape(50,50)
             ax.plot_surface(t0, t1, Z, rstride=1, cstride=1, color='b', alpha=0.5)
-            ax1.contour(t0, t1, Z)
+            cs = ax1.contour(t0, t1, Z, 20)
+            ax1.clabel(cs)
             ax.set_xlabel('theta 0')
             ax.set_ylabel('theta 1')
             ax.set_zlabel('J theta')
+            ax.set_title("Surface plot of Error Function")
             ax1.set_xlabel('theta 0')
             ax1.set_ylabel('theta 1')
+            ax1.set_title("Contour")
             
             for i, j, k in zip(theta0, theta1, cost1d):
-                ax.scatter(i, j, k)
-                ax1.scatter(i, j, k)
+                ax.scatter(i, j, k, color="r")
+                ax1.scatter(i, j, k, color="r")
                 plt.pause(0.2)
+            #plt.savefig("surface_plot.png")
+            #plt.savefig("contour.png")
             plt.show()
             return theta0[len(theta0)-1], theta1[len(theta1)-1]
 
@@ -87,14 +92,17 @@ if __name__ == "__main__":
     x = np.array(x)
     x = (x-med)/std_x
     
-    theta0, theta1 = batch_gd(x,y,0.001)
+    theta0, theta1 = batch_gd(x,y,0.025)
     
-    '''predicted = []
+    predicted = []
     for i in range(0, len(x)):
-        predicted.append(theta0[len(theta0)-1]+theta1[len(theta1)-1]*x[i])
-    
-    print theta0[len(theta0)-1], theta1[len(theta1)-1]
+        predicted.append(theta0+theta1*x[i])
     
     plt.scatter(x, y)
-    plt.plot(x, predicted, color="red")
-    plt.show()'''
+    plt.title("Plot of Hypothesis function")
+    plt.xlabel("Acidity")
+    plt.ylabel("Density")
+    line1 = plt.plot(x, predicted, color="red", label="Hypothesis function")
+    plt.legend()
+    plt.savefig('test.png')
+    plt.show()

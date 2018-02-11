@@ -12,10 +12,12 @@ if __name__ == "__main__":
     x1 = []
     x2 = []
     for line in fx:     #x has 2 attributes
-        x.append([1.0, int(line.split()[0]), int(line.split()[1])])
+        temp1 = int(line.split()[0])
+        temp2 = int(line.split()[1])
+        x.append([1.0, temp1, temp2])
         x0.append(1.0)
-        x1.append(int(line.split()[0]))
-        x2.append(int(line.split()[1]))
+        x1.append(temp1)
+        x2.append(temp2)
 
     for line in fy:  
         if str(line.rsplit()[0]) == "Alaska":
@@ -44,26 +46,33 @@ if __name__ == "__main__":
     #---Normalize
     
     #----Part A
-    mean0 = (np.matmul((1-y).T, x))/sum(1-y)    #Canada
-    mean1 = (np.matmul(y.T, x))/sum(y)      #Alaska
+    mean0 = (np.matmul((1-y).T, x))/float(sum(1-y))    #Canada
+    mean1 = (np.matmul(y.T, x))/float(sum(y))          #Alaska
     temp = []
-    for i in y:
-        if i==0:
-            temp.append(mean0)
+    for i in range(len(y)):
+        if y[i]==0:
+            temp.append(x[i]-mean0)
         else:
-            temp.append(mean1)
+            temp.append(x[i]-mean1)
     
-    temp = x - temp
-    sigma = np.matmul(temp.T, temp)/len(x)
+    #stemp = x - temp
+    temp=np.asarray(temp)
+    sigma = np.matmul(temp.T, temp)/float(len(x))
     print mean0, mean1, sigma
+    '''
+    data_mean = (mean0+mean1)/2.0
+    temp = x-data_mean
+    sigma = np.matmul(temp.T, temp)/float(len(x))
+    print mean0, mean1, sigma'''
     #---Part A
 
     #-----Part B
     for i in range(0, len(x1)):
         if y[i] == 0:       #Canada
-            plt.scatter(x1[i], x2[i], marker="o", c="r")
+            plt.scatter(x1[i], x2[i], marker="o", c="r", label="Canada")
         else:               #Alaska
-            plt.scatter(x1[i], x2[i], marker="X", c="g")
+            plt.scatter(x1[i], x2[i], marker="X", c="g", label="Alaska")
+    #plt.legend()
     #plt.show()
     #-----Part B
 
@@ -75,14 +84,14 @@ if __name__ == "__main__":
     mean0 = np.delete(mean0, 0, 0)
     mean1 = np.delete(mean1, 0, 0)
     #xx = np.matmul(inv(sigma), ((x-mean1)**2 - (x-mean1)**2).T)/2 - np.log(fai/(1-fai))
+    
     theta = np.matmul((mean1- mean0).T, inv(sigma))
     temp0 = np.matmul(np.matmul(mean0, inv(sigma)), mean0.T)
     temp1 = np.matmul(np.matmul(mean1, inv(sigma)), mean1.T)
     theta0 = (temp0-temp1)/2 + np.log(fai/(1-fai))
-    print theta
+    print "Theta", theta
     xx = -(theta0+theta[0] * x1)/theta[1]
     plt.plot(x1, xx)
-    #plt.show()
     
     #----Part C
     
@@ -94,26 +103,32 @@ if __name__ == "__main__":
     xm1 = np.asarray(xm1)
     sigma1 = np.matmul(xm1.T, xm1)/sum(1-y)
 
+    x1 = np.sort(x1.T)
+    x2 = np.sort(x2.T)
+    x1, x2 = np.meshgrid(x1, x2)
     print "Sigma 0", sigma0
     print "Sigma 1", sigma1
+    
     #----Part C
-    temp0 = np.matmul(np.matmul(mean0, inv(sigma0)), mean0.T)
-    temp1 = np.matmul(np.matmul(mean1, inv(sigma1)), mean1.T)
-    D = -temp1 + temp0 + 2*np.log((fai/(1-fai)) * ((np.linalg.det(sigma0))**0.5/(np.linalg.det(sigma1))**0.5))
+    temp0 = np.matmul(np.matmul(mean0.T, inv(sigma0)), mean0)   #Cor
+    temp1 = np.matmul(np.matmul(mean1.T, inv(sigma1)), mean1)   #cor
+    num1 = (fai*np.linalg.det(sigma0))
+    num2 = (1-fai)*np.linalg.det(sigma1)
+    
+    D = -temp1 + temp0 + np.log(num1/num2)
     sigd = inv(sigma1) - inv(sigma0)
     a = sigd[0][0]
     b = sigd[0][1]
     c = sigd[1][0]
     d = sigd[1][1]
-    sigd2 = 2 * np.matmul(mean0, inv(sigma0)) - np.matmul(mean1, inv(sigma1))
+    sigd2 = np.matmul(mean0.T, inv(sigma0)) - np.matmul(mean1.T, inv(sigma1))
     e = sigd2[0]
     f = sigd2[1]
-    F = (c+b)*x1 + 2*f
-    G = (x1**2) * a + 2*e*x1 - D
-    xx = (d * (x2**2).T) + np.matmul(F, x2.T) + G
-    print xx.shape
-    plt.plot(x2, xx/101)
+    def F(v):
+        return (c+b)*v + 2*f
+        
+    def G(v):
+        return (v**2)*a + 2*e*v - D
+    print G(x1[0])
+    plt.contour(x1, x2, ((d*(x2**2)) + F(x1)*x2 + G(x1)), [0])
     plt.show()
-    print (x2**2).shape, F.shape, np.matmul(F.T, x2).shape, G.shape
-    #theta = np.matmul(inv(sigma), (mean1-mean0).T)
-    #print theta

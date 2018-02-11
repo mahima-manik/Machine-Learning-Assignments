@@ -57,7 +57,7 @@ def hessian (x, y, theta):
         si = si + 1
     return np.linalg.inv(H)
 
-def batch_gd(x, y):
+def newtons(x, y):
     theta0 = []
     theta1 = []
     theta2 = []
@@ -71,12 +71,12 @@ def batch_gd(x, y):
         theta0.append(temp[0])
         theta1.append(temp[1])
         theta2.append(temp[2])
-        
         a1 = cost_function(x, y, [theta0[len(theta0)-1], theta1[len(theta1)-1], theta2[len(theta2)-1]])
         a2 = cost_function(x, y, [theta0[len(theta0)-2], theta1[len(theta1)-2], theta2[len(theta2)-2]])
-        print "My thetas=", temp, ", a1=" , a1
         
-        if (abs(a1-a2) <= 0.0001):
+        print temp, ", a1=" , a1
+        
+        if (abs(a1-a2) <= 0):
             print "Answer: ", theta0[len(theta0)-1], theta1[len(theta1)-1], theta2[len(theta2)-1], a1
             return theta0[len(theta0)-1], theta1[len(theta1)-1], theta2[len(theta2)-1]
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         x[:,i] = (x[:,i]-med)/std_x
     
     theta = np.array([0, 0, 0])
-    t0, t1, t2 = batch_gd(x, y)
+    t0, t1, t2 = newtons(x, y)
 
     for i in range(0, len(x1)):
         if y[i] == 0:
