@@ -36,13 +36,16 @@ def der_log_likelihood(x, y, theta):
         res = 0
     return z        #z will be an n*1 matrix
 
-def double_der_ll(x, a, b):
+def double_der_ll(x, theta, a, b):
     res = 0
     #a and b can either be 0, 1 or 2
+    theta = np.asarray(theta)
     for i in x:
-        gz = 1/(1+math.exp(-1*np.matmul(theta.T, i)))
-        res = res + (i[a]*i[b])*gz*(1-gz)
-    return -1 * res
+        gz = 1/ (1+math.exp(-1*np.matmul(theta.T, i)))
+        res = res + ((i[a] * i[b]) * gz * (gz - 1))
+        #print (i[a] * i[b]) * gz * (1 - gz), res
+    #print "\n"
+    return res
 
 def hessian (x, y, theta):
     H = np.zeros((len(theta), len(theta)))
@@ -50,7 +53,7 @@ def hessian (x, y, theta):
     sj=0
     while si < len(theta):
         while sj < len(theta):
-            temp = double_der_ll(x, si, sj)
+            temp = double_der_ll(x, theta, si, sj)
             H[si][sj] = temp
             sj = sj+1
         sj = 0
@@ -75,7 +78,7 @@ def newtons(x, y):
         a2 = cost_function(x, y, [theta0[len(theta0)-2], theta1[len(theta1)-2], theta2[len(theta2)-2]])
         
         print temp, ", a1=" , a1
-        
+        #print hessian(x, y, prev_theta)
         if (abs(a1-a2) <= 0):
             print "Answer: ", theta0[len(theta0)-1], theta1[len(theta1)-1], theta2[len(theta2)-1], a1
             return theta0[len(theta0)-1], theta1[len(theta1)-1], theta2[len(theta2)-1]
@@ -116,10 +119,15 @@ if __name__ == "__main__":
             plt.scatter(x1[i], x2[i], marker="o", c="r")
         else:
             plt.scatter(x1[i], x2[i], marker="X", c="g")
-    
+    plt.scatter(x1[0], x2[0], marker="o", c="r", label="y = 0")
+    plt.scatter(x1[-1], x2[-1], marker="X", c="g", label="y = 1")
     xx = []
     for i in range(0, len(x)):
         xx.append(-1*(t1*x1[i]+ t0*x0[i])/t2)    
-    plt.plot(x1, xx)
+    g = plt.plot(x1, xx, label="Decision Boundary")
+    plt.xlabel("x1")
+    plt.ylabel("x2")
+    plt.title("Logistic Regression")
+    plt.legend()
     plt.show()
             
