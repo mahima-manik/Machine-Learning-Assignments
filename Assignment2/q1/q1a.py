@@ -1,10 +1,10 @@
 import os, time, string, re, time, math
 import numpy as np
+import pickle, sys
 
 '''Vocab is a dictionary with key as the word itself and the 
 value contains the array which contains the count of that word in each of the labels'''
 vocab = {}
-review_list = []
 actual = []
 
 def update_fais(fais, word_count, rating, x):
@@ -48,9 +48,10 @@ def find_accuracy(p_thetas, p_fais, features, actual):
     '''For each review'''
     with open(features, 'r') as fx:
         for review in fx:
-            review = review.replace('<br />', '')
+            #review = review.replace('<br />', '')
             review = re.sub(r'[^\w\s]','', review).upper()
             temp = [0 for i in range(8)]
+
             '''For each word in that review'''
             for r in review.split():
                 if r in p_thetas:
@@ -70,9 +71,12 @@ def find_accuracy(p_thetas, p_fais, features, actual):
             if int(i) == j:
                 same += 1
 
-    print "Accuracy", (same/25000.0)*100, "%"
+    print "Accuracy", (same/float(len(predicted)))*100, "%"
 
 if __name__ == "__main__":
+    #modelq1 = sys.argv[1]
+    #training_input = sys.argv[2]
+    #training_output = sys.argv[3]
     start_time = time.time()
     p_fais = [0 for i in range(8)]
     word_count = [0 for i in range(8)]
@@ -96,7 +100,8 @@ if __name__ == "__main__":
     create_thetas(p_thetas, word_count)
     print "Length of Vocabulary: ", len(vocab)
     print "Preprocessing time:", time.time() - start_time
-    
+    #pickle.dump((p_thetas, p_fais), open( "modelq1a.p", "wb" ))
+    #p_thetas, p_fais = pickle.load( open( "modelq1a.p", "rb" ) )
     
     print "Training: ",
     find_accuracy(p_thetas, p_fais, "imdb/imdb_train_text.txt", "imdb/imdb_train_labels.txt")

@@ -1,11 +1,11 @@
+
 import os, time, string, re, time, math
 import numpy as np
+import pickle
 
 '''Vocab is a dictionary with key as the word itself and the 
 value contains the array which contains the count of that word in each of the labels'''
 vocab = {}
-review_list = []
-actual = []
 
 def update_fais(fais, word_count, rating, x):
     if (rating <= 4):
@@ -33,14 +33,9 @@ def create_dict(review, rating):
             update_dict(r, rating)
 
 
-''' '''
 def create_thetas(thetas, word_count):
     for w in vocab:
         thetas[w] = [ (i+1) / float(j+len(vocab)) for i, j in zip(vocab[w], word_count)]
-
-    #print "Total thetas", len(thetas), len(vocab)
-    #print thetas['I']
-
 
 def find_accuracy(p_thetas, p_fais, features, actual):
     predicted = []
@@ -68,7 +63,7 @@ def find_accuracy(p_thetas, p_fais, features, actual):
             if int(i) == j:
                 same += 1
 
-    print "Accuracy", (same/25000.0)*100, "%"
+    print "Accuracy", (same/float(len(predicted)))*100, "%"
 
 if __name__ == "__main__":
     start_time = time.time()
@@ -89,6 +84,8 @@ if __name__ == "__main__":
     '''
     p_thetas = {}
     create_thetas(p_thetas, word_count)
+    pickle.dump((p_thetas, p_fais), open( "modelq1d.p", "wb" ))
+    p_thetas, p_fais = pickle.load( open( "modelq1d.p", "rb" ) )
     print "Preprocessing time:", time.time() - start_time
     '''p_fais now contains the probability of y'''
     start_time = time.time()
