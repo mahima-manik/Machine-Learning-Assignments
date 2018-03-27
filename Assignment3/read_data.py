@@ -27,7 +27,7 @@ encode = {
     "race"   : {race_l[i]:i for i in range(len(race_l))},
     "sex"    : {sex_l[i]:i for i in range(len(sex_l))},
     "nc"     : {nc_l[i]:i for i in range(len(nc_l))},
-    }
+}
 
 def medians(file):
     """
@@ -39,7 +39,7 @@ def medians(file):
     """
     fin = open(file,"r")
     reader = csv.reader(fin)
-    ''' ALl the continuous attributes '''
+    ''' ALl the continuous attributes, there are six of them '''
     age, fnlwgt, edun, capg, capl, hpw = ([] for i in range(6))
     total = 0
     for row in reader:
@@ -48,6 +48,8 @@ def medians(file):
         if ( total == 1 ):
             continue
         
+        '''This is L: ['41', 'Private', '80666', 'Some-college', '10', 'Married-civ-spouse', 
+        'Prof-specialty', 'Husband', 'White', 'Male', '0', '0', '50', 'United-States', '1']'''
         l = [x.lstrip().rstrip() for x in row]
         age.append(int(l[0]));
         fnlwgt.append(int(l[2]));
@@ -83,6 +85,7 @@ def preprocess(file):
         label.append(int(l[-1]))
 
         t = [0 for i in range(15)]
+
         # Encode the categorical attributes
         t[0] = encode["rich"][l[-1]]; t[2] = encode["wc"][l[1]]; t[4] = encode["edu"][l[3]]
         t[6] = encode["mar"][l[5]]; t[7] = encode["occ"][l[6]]; t[8] = encode["rel"][l[7]]

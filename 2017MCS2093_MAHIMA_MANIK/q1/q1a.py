@@ -33,7 +33,11 @@ def create_dict(review, rating):
             update_dict(r, rating)
 
 
-''' '''
+''' 
+i - count of words in each class
+j - total words in that class
+
+'''
 def create_thetas(thetas, word_count):
     for w in vocab:
         thetas[w] = [ (i+1) / float(j+len(vocab)) for i, j in zip(vocab[w], word_count)]
@@ -79,7 +83,7 @@ if __name__ == "__main__":
     #training_output = sys.argv[3]
     start_time = time.time()
     p_fais = [0 for i in range(8)]
-    word_count = [0 for i in range(8)]
+    word_count = [0 for i in range(8)]      '''how many words in each class '''
     with open("imdb/imdb_train_text.txt") as fx, open("imdb/imdb_train_labels.txt") as fy:
         for review, rating in zip(fx, fy):
             rating = int(rating)

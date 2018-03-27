@@ -51,6 +51,8 @@ def pegasos(t, k, n, x, nums):
             if ( dig[i] * np.matmul(w.T, np.asarray(ints[i]))[0] + b) <= 1:
                 At_plus.append(i)
         
+        ''' lambda = 1
+        '''
         eta = 1/float(t_iter-t)
         
         if len(At_plus) != 0:
