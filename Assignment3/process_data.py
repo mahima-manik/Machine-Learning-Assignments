@@ -3,6 +3,7 @@ from tree_ds import *
 import math, time
 
 data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
+num_nodes = 0
 
 def entropy(labels, indices):
     arr_size = len(indices)
@@ -55,7 +56,7 @@ def highest_ig(labels, data, indices):
         
         #print ("Information gain", (h_y - net_ent))
     feature_index = ig_list.index(max(ig_list))
-    print ("Feature chosen:", data_attributes[feature_index])
+    #print ("Feature chosen:", data_attributes[feature_index])
     return feature_index , ig_list[feature_index], d_list[feature_index]
 
 def get_accuracy(indices):
@@ -64,17 +65,21 @@ def get_accuracy(indices):
         if train_labels[i] == 1:
             pos += 1
     
-    if ( (100.0 * float(pos) / len(indices)) > 100 - (100.0 * float(pos) / len(indices)) ):
-        return (1, 100.0 * float(pos) / len(indices))
+    pos_per = 100.0 * float(pos) / len(indices)
+    if ( pos_per > (100 - pos_per) ):
+        return (1, pos_per)
     else:
-        return (0, 100 - (100.0 * float(pos) / len(indices)))
+        return (0, 100.0-pos_per)
 
 def make_node(indices, height):
+    global num_nodes
     feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
     acc = get_accuracy(indices)
-    print (acc[1], child_node_d.keys())
-    if (acc[1] > 99.0):
-        return Tree_Node({}, 1, None, height+1, indices, acc[0])
+    print ("Feature chosen:", data_attributes[feature_index], acc[1], len(indices))
+    num_nodes += 1
+    #print (acc[1], child_node_d.keys())
+    if (acc[1] > 99.99999):
+        return Tree_Node({}, 1, feature_index, height+1, indices, acc[0])
     else:
         return Tree_Node (child_node_d , 0, feature_index, height+1, indices, acc[0])
 '''
@@ -84,12 +89,12 @@ indices - indices of all the data at the target node
 '''
 def grow_tree(tree_root):
     ''' Base Case: When the accuracy on the target node is pretty high. '''
+    print ("Tree grew", tree_root.height, data_attributes[tree_root.split_feature])
     for child in tree_root.child_inds:
         cnode = make_node(tree_root.child_inds[child], tree_root.height)
-        print (cnode)
         tree_root.child_nodes[child] = cnode
         
-    print ("We are children", tree_root.child_nodes)
+    #print ("We are children", tree_root.child_nodes)
     for key, value in tree_root.child_nodes.items():
         if value.is_child == 0:
             grow_tree ( tree_root.child_nodes[child] )
@@ -98,13 +103,20 @@ def make_root(indices):
     feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
     acc = get_accuracy(indices)
     print ("Got Accuracy", acc[1], child_node_d.keys())
-    if (acc[1] > 99.0):
-        return Tree_Node({}, 1, None, 0, indices, acc[0])
+    if (acc[1] > 76.0):
+        return Tree_Node({}, 1, feature_index, 0, indices, acc[0])
     else:
         my_root = Tree_Node (child_node_d , 0, feature_index, 0, indices, acc[0])
         for child in my_root.child_inds:
             my_root.child_nodes[child] = make_node(my_root.child_inds[child], my_root.height)
         return my_root
+
+def print_tree(tree_root):
+    print (tree_root.height, tree_root.height*' ', len(tree_root.indices))
+    if tree_root.is_child == 0:
+        print ("My childen", len(tree_root.child_nodes))
+        for key, value in tree_root.child_nodes.items():
+            print_tree(value)
 
 if __name__ == "__main__":
 
@@ -116,10 +128,5 @@ if __name__ == "__main__":
 
     tree_root = make_root(indices)
     grow_tree (tree_root)
-
-
-    '''
-    #entropy (train_labels, indices)
-    
-
-    Tree_Node(child_node_d, 0, feature_index)'''
+    print ("Total Nodes", num_nodes, '\n\n')
+    print_tree(tree_root)
