@@ -96,5 +96,10 @@ def preprocess(file):
 train_data = preprocess("dtree_data/train.csv")
 valid_data = preprocess("dtree_data/valid.csv")
 test_data = preprocess("dtree_data/test.csv")
-
-print("The sizes are ","Train:",len(train_data),", Validation:",len(valid_data),", Test:",len(test_data))
+train_labels = train_data[:,0]
+train_data = np.delete(train_data, 0, 1)
+valid_labels = valid_data[:,0]
+valid_data = np.delete(valid_data, 0, 1)
+test_labels = test_data[:,0]
+test_data = np.delete(test_data, 0, 1)
+#print("The sizes are ","Train:",len(train_data),", Validation:",len(valid_data),", Test:",len(test_data))

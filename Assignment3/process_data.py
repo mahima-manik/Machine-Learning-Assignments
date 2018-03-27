@@ -1,5 +1,8 @@
-from read_data import *
-import math
+from read_data1 import *
+from tree_ds import *
+import math, time
+
+data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
 
 def entropy(labels, indices):
     arr_size = len(indices)
@@ -8,10 +11,10 @@ def entropy(labels, indices):
     '''
     d = {}
     for i in indices:
-        if labels[i][0] in d:
-            d[labels[i][0]] += 1
+        if labels[i] in d:
+            d[labels[i]] += 1
         else:
-            d[labels[i][0]] = 1
+            d[labels[i]] = 1
 
     ent = 0
     for v in d.values():
@@ -22,11 +25,12 @@ def entropy(labels, indices):
     return ent
 
 ''' Returns the list of information gain for each of the feature in the feature vecor '''
-def net_entropy(labels, data, indices):    
+''' child_node_d contains all the indices corresponding to the values that the chosen feature can take '''
+def highest_ig(labels, data, indices):    
     h_y = entropy(labels, indices)
     ig_list = []
     d_list = []
-    for i in range(15):
+    for i in range(14):
         ''' Extracting ith feature column from the data '''
         feature = data[:,i]
         
@@ -49,31 +53,73 @@ def net_entropy(labels, data, indices):
         ig_list.append( h_y - net_ent )
         d_list.append(d)
         
-        print ("Information gain", (h_y - net_ent))
-    return ig_list, d_list
+        #print ("Information gain", (h_y - net_ent))
+    feature_index = ig_list.index(max(ig_list))
+    print ("Feature chosen:", data_attributes[feature_index])
+    return feature_index , ig_list[feature_index], d_list[feature_index]
+
+def get_accuracy(indices):
+    pos = 0
+    for i in indices:
+        if train_labels[i] == 1:
+            pos += 1
+    
+    if ( (100.0 * float(pos) / len(indices)) > 100 - (100.0 * float(pos) / len(indices)) ):
+        return (1, 100.0 * float(pos) / len(indices))
+    else:
+        return (0, 100 - (100.0 * float(pos) / len(indices)))
+
+def make_node(indices, height):
+    feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
+    acc = get_accuracy(indices)
+    print (acc[1], child_node_d.keys())
+    if (acc[1] > 99.0):
+        return Tree_Node({}, 1, None, height+1, indices, acc[0])
+    else:
+        return Tree_Node (child_node_d , 0, feature_index, height+1, indices, acc[0])
+'''
+target_node - Node which we target to split
+feature_index - index of the feature that has the highest information gain
+indices - indices of all the data at the target node
+'''
+def grow_tree(tree_root):
+    ''' Base Case: When the accuracy on the target node is pretty high. '''
+    for child in tree_root.child_inds:
+        cnode = make_node(tree_root.child_inds[child], tree_root.height)
+        print (cnode)
+        tree_root.child_nodes[child] = cnode
         
+    print ("We are children", tree_root.child_nodes)
+    for key, value in tree_root.child_nodes.items():
+        if value.is_child == 0:
+            grow_tree ( tree_root.child_nodes[child] )
 
-class Tree_Node:
-    def __init__(num_child, list_child):
-        self.num_child = num_child
-        self.list_child = list_child
+def make_root(indices):
+    feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
+    acc = get_accuracy(indices)
+    print ("Got Accuracy", acc[1], child_node_d.keys())
+    if (acc[1] > 99.0):
+        return Tree_Node({}, 1, None, 0, indices, acc[0])
+    else:
+        my_root = Tree_Node (child_node_d , 0, feature_index, 0, indices, acc[0])
+        for child in my_root.child_inds:
+            my_root.child_nodes[child] = make_node(my_root.child_inds[child], my_root.height)
+        return my_root
 
-class Decision_Tree:
-    def __init__(root):
-        self.root = root
+if __name__ == "__main__":
 
-print("The sizes are " , "Train:" , train_data.shape , ", Validation:" , (valid_data.shape) , ", Test:" , test_data.shape)
+    print("The sizes are " , "Train:" , train_data.shape , ", Validation:" , (valid_data.shape) , ", Test:" , test_data.shape)
 
-indices = []
-for i in range(len(train_labels)):
-    indices.append(i)
+    indices = []
+    for i in range(len(train_labels)):
+        indices.append(i)
 
-#entropy (train_labels, indices)
-ig_list, d_list = net_entropy(train_labels, train_data, indices)
+    tree_root = make_root(indices)
+    grow_tree (tree_root)
 
-feature_index = ig_list.index(max(ig_list))
-''' d_list[feature_index] contains all the indices corresponding to the values that the chosen feature can take '''
-child_node_d = d_list[feature_index]
-print (child_node_d.keys())
-print (feature_index)
-#feature_split(feature_index, )
+
+    '''
+    #entropy (train_labels, indices)
+    
+
+    Tree_Node(child_node_d, 0, feature_index)'''
