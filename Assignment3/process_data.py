@@ -57,7 +57,7 @@ def highest_ig(labels, data, indices):
         #print ("Information gain", (h_y - net_ent))
     feature_index = ig_list.index(max(ig_list))
     #print ("Feature chosen:", data_attributes[feature_index])
-    return feature_index , ig_list[feature_index], d_list[feature_index]
+    return feature_index, d_list[feature_index]
 
 def get_accuracy(indices):
     pos = 0
@@ -73,14 +73,14 @@ def get_accuracy(indices):
 
 def make_node(indices, height):
     global num_nodes
-    feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
     acc = get_accuracy(indices)
-    print ("Feature chosen:", data_attributes[feature_index], acc[1], len(indices))
+    feature_index, child_node_d = highest_ig(train_labels, train_data, indices)
     num_nodes += 1
     #print (acc[1], child_node_d.keys())
     if (acc[1] > 99.99999):
         return Tree_Node({}, 1, feature_index, height+1, indices, acc[0])
     else:
+        #print ("Feature chosen:", height+1, len(indices))
         return Tree_Node (child_node_d , 0, feature_index, height+1, indices, acc[0])
 '''
 target_node - Node which we target to split
@@ -89,26 +89,26 @@ indices - indices of all the data at the target node
 '''
 def grow_tree(tree_root):
     ''' Base Case: When the accuracy on the target node is pretty high. '''
-    print ("Tree grew", tree_root.height, data_attributes[tree_root.split_feature])
-    for child in tree_root.child_inds:
-        cnode = make_node(tree_root.child_inds[child], tree_root.height)
-        tree_root.child_nodes[child] = cnode
+    #print ("Tree grew", tree_root.height, data_attributes[tree_root.split_feature])
+    for key, value in tree_root.child_inds.items():
+        cnode = make_node(value, tree_root.height)
+        tree_root.child_nodes[key] = cnode
         
-    #print ("We are children", tree_root.child_nodes)
+    print ("We are children", len(tree_root.child_nodes))
     for key, value in tree_root.child_nodes.items():
         if value.is_child == 0:
-            grow_tree ( tree_root.child_nodes[child] )
+            grow_tree ( value )
 
 def make_root(indices):
-    feature_index, ig, child_node_d = highest_ig(train_labels, train_data, indices)
+    feature_index, child_node_d = highest_ig(train_labels, train_data, indices)
     acc = get_accuracy(indices)
-    print ("Got Accuracy", acc[1], child_node_d.keys())
+    print ("Got Accuracy", acc[1], data_attributes[feature_index])
     if (acc[1] > 76.0):
         return Tree_Node({}, 1, feature_index, 0, indices, acc[0])
     else:
         my_root = Tree_Node (child_node_d , 0, feature_index, 0, indices, acc[0])
-        for child in my_root.child_inds:
-            my_root.child_nodes[child] = make_node(my_root.child_inds[child], my_root.height)
+        #for key, value in my_root.child_inds.items():
+        #    my_root.child_nodes[key] = make_node(value, my_root.height)
         return my_root
 
 def print_tree(tree_root):
@@ -129,4 +129,4 @@ if __name__ == "__main__":
     tree_root = make_root(indices)
     grow_tree (tree_root)
     print ("Total Nodes", num_nodes, '\n\n')
-    print_tree(tree_root)
+    #print_tree(tree_root)
