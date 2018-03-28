@@ -21,26 +21,30 @@ class Tree_Node:
 
 def grow_tree( target_node ):
     feature_index, child_node_d = highest_ig(target_node.indices)
-    acc = get_accuracy(indices)
-    if (acc[1] > 99.0):
+    acc = get_accuracy(target_node.indices)
+    
+    if (acc[1] > 80.0):
+        target_node.is_child = 1
         return
+    
     else:
+        cheight = target_node.height + 1
+    
         for key, value in target_node.child_inds.items():
-            target_node.child_nodes[key] = make_node(value, target_node.height+1)
-            if target_node.child_nodes[key].is_child == 0:
-                grow_tree ( target_node.child_nodes[key] )
-    return
+            cnode = make_node(value, cheight)            
+            target_node.child_nodes[key] = cnode
+            grow_tree ( target_node.child_nodes[key] )
+        return
         
 def make_node(indices, height):
+    global num_nodes
     feature_index, child_node_d = highest_ig(indices)
     acc = get_accuracy(indices)
-    print ("Got Accuracy", acc[1], data_attributes[feature_index])
     
-    if (acc[1] > 99.0):
-        my_root = Tree_Node ({}, 1, feature_index, height, indices, acc[0])
-    else:
-        my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0])    
+    my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0])    
     
+    num_nodes += 1
+    print (height, num_nodes)
     return my_root
 
 
@@ -54,4 +58,4 @@ if __name__ == "__main__":
 
     tree_root = make_node(indices, 0)
     grow_tree (tree_root)
-    #print ("Total Nodes", num_nodes, '\n\n')
+    print ("Total Nodes", num_nodes, '\n\n')

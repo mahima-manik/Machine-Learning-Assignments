@@ -99,6 +99,8 @@ def grow_tree(tree_root):
     for key, value in tree_root.child_nodes.items():
         if value.is_child == 0:
             grow_tree ( value )
+    
+    return
 
 def make_root(indices):
     feature_index, child_node_d = highest_ig(train_labels, train_data, indices)

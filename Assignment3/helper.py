@@ -24,8 +24,9 @@ def entropy(labels, indices):
 ''' child_node_d contains all the indices corresponding to the values that the chosen feature can take '''
 def highest_ig(indices):    
     h_y = entropy(train_labels, indices)
-    ig_list = []
-    d_list = []
+    ig_max = 0
+    d_max = None
+    feature_index = 0
     for i in range(14):
         ''' Extracting ith feature column from the data '''
         feature = train_data[:,i]
@@ -46,13 +47,14 @@ def highest_ig(indices):
             ent = entropy (train_labels, v)
             net_ent += (prob_x * ent)
 
-        ig_list.append( h_y - net_ent )
-        d_list.append(d)
+        if (( h_y - net_ent ) > ig_max):
+            ig_max = ( h_y - net_ent )
+            d_max = d
+            feature_index = i
         
         #print ("Information gain", (h_y - net_ent))
-    feature_index = ig_list.index(max(ig_list))
     #print ("Feature chosen:", data_attributes[feature_index])
-    return feature_index, d_list[feature_index]
+    return feature_index, d
 
 def get_accuracy(indices):
     pos = 0
