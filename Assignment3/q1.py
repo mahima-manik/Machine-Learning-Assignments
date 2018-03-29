@@ -9,8 +9,8 @@ num_nodes = 0
 ''' child_nodes : Dictionary of all children nodes and value is correspoding Tree_Node objectsa of those children '''
 ''' split_feature : feature that gives the maximum IG value for that node '''
 class Tree_Node:
-    def __init__(self, child_d, is_child, split_feature, height, indices, p):
-        self.num_child = len(child_d.keys())
+    def __init__(self, child_d, is_child, split_feature, height, indices, p, inds_attr):
+        #self.num_child = len(child_d.keys())
         self.child_inds = child_d
         self.child_nodes = {}
         self.is_child = is_child
@@ -18,12 +18,10 @@ class Tree_Node:
         self.height = height
         self.indices = indices
         self.predicted = p      #what value 0/1 is being predicted at this node
+        self.ununsed_attr = inds_attr
 
 def grow_tree( target_node ):
-    ig, feature_index, child_node_d = highest_ig(target_node.indices)
-    acc = get_accuracy(target_node.indices)
-    
-    if (acc[1] >= 99.0 or ig == 0):
+    if target_node.split_feature == None:
         target_node.is_child = 1
         return
     
@@ -31,20 +29,27 @@ def grow_tree( target_node ):
         cheight = target_node.height + 1
     
         for key, value in target_node.child_inds.items():
-            cnode = make_node(value, cheight)            
+            cnode = make_node(value, cheight, target_node.ununsed_attr)            
             target_node.child_nodes[key] = cnode
-            grow_tree ( target_node.child_nodes[key] )
+            
+            if (highest_ig(target_node.child_inds[key], target_node.child_nodes[key].ununsed_attr)[0] != 0):
+                grow_tree ( target_node.child_nodes[key] )
+            else:
+                target_node.child_nodes[key].is_child = 1
         return
         
-def make_node(indices, height):
+def make_node(indices, height, inds_attr):
     global num_nodes
-    ig, feature_index, child_node_d = highest_ig(indices)
+    ig, feature_index, child_node_d = highest_ig(indices, inds_attr)
+    print (ig, feature_index)
     acc = get_accuracy(indices)
     
-    my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0])    
+    my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0], inds_attr)    
+    if feature_index != None:
+        my_root.ununsed_attr[feature_index] = 0
     
     num_nodes += 1
-    print (height, num_nodes)
+    print ("Height", height, "Nodes", num_nodes, acc[1])
     return my_root
 
 def one_data (target_node, data, label):
@@ -62,7 +67,7 @@ def all_data (target_node, data, label):
     acc = 0
     for d, l in zip(data, label):
         acc += one_data (target_node, d, l)
-        print (acc)
+        #print (acc)
     
     return (100 * float(acc) / len(label))
 
@@ -100,12 +105,18 @@ if __name__ == "__main__":
     for i in range(len(train_labels)):
         indices.append(i)
 
-    tree_root = make_node(indices, 0)
+    inds_attr = []
+    for i in range(14):
+        inds_attr.append(1)
+    
+    tree_root = make_node(indices, 0, inds_attr)
     grow_tree (tree_root)
-    print ("Total Nodes", num_nodes, '\n\n')
-    print (all_data (tree_root, train_data, train_labels))
+    #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
+    #print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
+    #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
+
     #rec_fun (indices)
-    #print ("Total Nodes", num_nodes, '\n\n')
+    print ("Total Nodes", num_nodes, '\n\n')
     '''
     a, b = (highest_ig(indices))
     for key, value in b.items():
