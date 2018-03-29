@@ -1,17 +1,17 @@
 import math, time
 from read_data1 import *
 
-def entropy(labels, indices):
+def entropy(indices):
     arr_size = len(indices)
     ''' Creating dictionary for each distinct values in labels whose index is present in indices 
     d = {0: 20299, 1: 6701}
     '''
     d = {}
     for i in indices:
-        if labels[i] in d:
-            d[labels[i]] += 1
+        if train_labels[i] in d:
+            d[train_labels[i]] += 1
         else:
-            d[labels[i]] = 1
+            d[train_labels[i]] = 1
 
     ent = 0
     for v in d.values():
@@ -23,7 +23,7 @@ def entropy(labels, indices):
 ''' Returns the list of information gain for each of the feature in the feature vecor '''
 ''' child_node_d contains all the indices corresponding to the values that the chosen feature can take '''
 def highest_ig(indices):    
-    h_y = entropy(train_labels, indices)
+    h_y = entropy(indices)
     ig_max = 0
     d_max = None
     feature_index = 0
@@ -39,12 +39,14 @@ def highest_ig(indices):
                 d[feature[ind]].append(ind)
             else :
                 d[feature[ind]] = [ind]
+        if i==0:
+            d_max = d
         
         net_ent = 0
         for v in d.values():
             prob_x = float(len(v))/len(indices) 
             ''' Calculating entropy over all the values of dictonary creates '''
-            ent = entropy (train_labels, v)
+            ent = entropy (v)
             net_ent += (prob_x * ent)
 
         if (( h_y - net_ent ) > ig_max):
@@ -54,7 +56,8 @@ def highest_ig(indices):
         
         #print ("Information gain", (h_y - net_ent))
     #print ("Feature chosen:", data_attributes[feature_index])
-    return feature_index, d
+    print (ig_max)
+    return ig_max, feature_index, d_max
 
 def get_accuracy(indices):
     pos = 0

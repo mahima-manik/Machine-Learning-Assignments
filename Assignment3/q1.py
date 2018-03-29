@@ -20,10 +20,10 @@ class Tree_Node:
         self.predicted = p      #what value 0/1 is being predicted at this node
 
 def grow_tree( target_node ):
-    feature_index, child_node_d = highest_ig(target_node.indices)
+    ig, feature_index, child_node_d = highest_ig(target_node.indices)
     acc = get_accuracy(target_node.indices)
     
-    if (acc[1] > 80.0):
+    if (acc[1] >= 99.0 or ig == 0):
         target_node.is_child = 1
         return
     
@@ -38,7 +38,7 @@ def grow_tree( target_node ):
         
 def make_node(indices, height):
     global num_nodes
-    feature_index, child_node_d = highest_ig(indices)
+    ig, feature_index, child_node_d = highest_ig(indices)
     acc = get_accuracy(indices)
     
     my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0])    
@@ -47,6 +47,50 @@ def make_node(indices, height):
     print (height, num_nodes)
     return my_root
 
+def one_data (target_node, data, label):
+    if target_node.is_child == 1:
+        if label == target_node.predicted:
+            return 1
+        else:
+            return 0
+    else:
+        val = target_node.split_feature
+        return one_data (target_node.child_nodes[data[val]], data, label)
+
+
+def all_data (target_node, data, label):
+    acc = 0
+    for d, l in zip(data, label):
+        acc += one_data (target_node, d, l)
+        print (acc)
+    
+    return (100 * float(acc) / len(label))
+
+'''
+def rec_fun (indices):
+    global num_nodes
+
+    ig, a, b = (highest_ig(indices))
+    print ("B len", len(b))
+    #print a
+    for key, value in b.items():
+        print (key, len(value), get_accuracy(value)[1])
+        if len(value)==14:
+            print (a, b)
+        if get_accuracy(value)[1] < 99.0 and ig != 0:
+            num_nodes += 1
+            rec_fun (value)
+
+
+def grow_tree1 (target_node):
+    global num_nodes
+
+    ig, a, b = highest_ig (target_node.indices)
+    for key, value in b.items():
+        if get_accuracy(value)[1] < 99.0 and ig != 0:
+            num_nodes += 1
+            grow_tree1( Tree_Node () )
+'''
 
 if __name__ == "__main__":
 
@@ -59,3 +103,18 @@ if __name__ == "__main__":
     tree_root = make_node(indices, 0)
     grow_tree (tree_root)
     print ("Total Nodes", num_nodes, '\n\n')
+    print (all_data (tree_root, train_data, train_labels))
+    #rec_fun (indices)
+    #print ("Total Nodes", num_nodes, '\n\n')
+    '''
+    a, b = (highest_ig(indices))
+    for key, value in b.items():
+        print (key, len(value))
+        a1, b1 = highest_ig(value)
+
+
+    #13 {0: [307, 2383, 8881, 9535, 10932, 12986, 14551, 18447, 19120, 19244, 21353, 21798, 22760, 26572]}
+
+    print (highest_ig ([307, 2383, 8881, 9535, 10932, 12986, 14551, 18447, 19120, 19244, 21353, 21798, 22760, 26572]))
+    print (get_accuracy ([307, 2383, 8881, 9535, 10932, 12986, 14551, 18447, 19120, 19244, 21353, 21798, 22760, 26572]))
+    '''
