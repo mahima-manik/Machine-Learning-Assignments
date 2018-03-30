@@ -96,6 +96,7 @@ def preprocess(file):
 train_data = preprocess("dtree_data/train.csv")
 valid_data = preprocess("dtree_data/valid.csv")
 test_data = preprocess("dtree_data/test.csv")
+
 train_labels = train_data[:,0]
 train_data = np.delete(train_data, 0, 1)
 valid_labels = valid_data[:,0]

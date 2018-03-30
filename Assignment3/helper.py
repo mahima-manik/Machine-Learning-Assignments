@@ -23,39 +23,40 @@ def entropy(indices):
 
 ''' Returns the list of information gain for each of the feature in the feature vecor '''
 ''' child_node_d contains all the indices corresponding to the values that the chosen feature can take '''
-def highest_ig(indices):    
+def highest_ig(indices, attr_list):    
     h_y = entropy(indices)
     ig_max = 0
     d_max = None
     feature_index = None
-    for i in range(14):        
-        ''' Extracting ith feature column from the data '''
-        feature = train_data[:,i]
-        
-        ''' d contains list of those indices which has same feature value '''
-        d = {}
-        
-        for ind in indices:
-            if feature[ind] in d :
-                d[feature[ind]].append(ind)
-            else :
-                d[feature[ind]] = [ind]
-        
-        if (d_max == None or feature_index == None):
-            d_max = d
-            feature_index = i
-        
-        net_ent = 0
-        for v in d.values():
-            prob_x = float(len(v))/len(indices)
-            ''' Calculating entropy over all the values of dictonary creates '''
-            ent = entropy (v)
-            net_ent += (prob_x * ent)
+    for i in range(14):   
+        if attr_list[i] == 1:     
+            ''' Extracting ith feature column from the data '''
+            feature = train_data[:,i]
+            
+            ''' d contains list of those indices which has same feature value '''
+            d = {}
+            
+            for ind in indices:
+                if feature[ind] in d :
+                    d[feature[ind]].append(ind)
+                else :
+                    d[feature[ind]] = [ind]
+            
+            if (d_max == None or feature_index == None):
+                d_max = d
+                feature_index = i
+            
+            net_ent = 0
+            for v in d.values():
+                prob_x = float(len(v))/len(indices)
+                ''' Calculating entropy over all the values of dictonary creates '''
+                ent = entropy (v)
+                net_ent += (prob_x * ent)
 
-        if ( ( h_y - net_ent ) > ig_max ):
-            ig_max = ( h_y - net_ent )
-            d_max = d
-            feature_index = i
+            if ( ( h_y - net_ent ) > ig_max ):
+                ig_max = ( h_y - net_ent )
+                d_max = d
+                feature_index = i
         
         #print ("Information gain", (h_y - net_ent))
     #print ("Feature chosen:", data_attributes[feature_index])

@@ -103,9 +103,9 @@ if __name__ == "__main__":
         predicted.append(theta0+theta1*x[i])
     
     plt.scatter(x, y)
-    plt.title("Plot of Hypothesis function")
-    plt.xlabel("Acidity")
-    plt.ylabel("Density")
-    line1 = plt.plot(x, predicted, color="red", label="Hypothesis function")
+    plt.title("Training Accuracy")
+    plt.xlabel("Number of Nodes")
+    plt.ylabel("Accuracy")
+    line1 = plt.plot(x, predicted, color="red", label="Accuracy")
     plt.legend()
     plt.show()
