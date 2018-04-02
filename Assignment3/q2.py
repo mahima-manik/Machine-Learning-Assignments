@@ -88,35 +88,55 @@ def all_data (target_node, data, label):
         acc += one_data (target_node, d, l)
     return (100 * float(acc) / len(label))
 
-def remove_node (target_node):
-    
-        
-            
 
 def lets_prune (prev_acc):
     global last_list, tree_root
+    
     ''' High_ht will contain the node the the longest height '''
     high_ht = (None, 0)
     
-    for i in last_list:
-        if i.height > high_ht[1]:
-            high_ht = (i, i.height)
+    for item in last_list:
+        if item.height > high_ht[1] and item.visited == 0:
+            high_ht = (item, item.height)
 
-    target_node = high_ht[0].parent
-    target_node.visited = 1
+    if high_ht[0] == None:      #All the nodes are visited
+        print ("coming")
+        return
+    else:
+        my_node = high_ht[0]
+        target_node = my_node.parent
+        target_node.visited = 1
+        my_node.visited = 1
+        tn_parent = target_node.parent
+        ''' search for the target_node in the list of child nodes '''
+        for i, j in tn_parent.child_nodes.items():
+            if j == target_node:
+                del tn_parent.child_nodes[i]
+                break
 
-    tn_parent = target_node.parent
-    ''' search for the target_node in the list of child nodes '''
-    for i, j in tn_parent.child_nodes:
-        if j == target_node:
-            del tn.parent.child_nodes[i]
-            break
-
-    new_acc = all_data (tree_root, valid_data, valid_labels)
-    if new_acc > prev_acc:
-        del tn_parent.child_inds[i]
-        if len(tn_parent.child_inds) != 0:
-            lets_prune (new_acc)
+        new_acc = all_data (tree_root, valid_data, valid_labels)
+        tacc =  all_data (tree_root, train_data, train_labels)
+        if new_acc > prev_acc:
+            print (new_acc, tacc)
+            del tn_parent.child_inds[i]
+            last_list.remove(my_node)
+            for i, j in target_node.child_nodes.items():
+                if j in last_list:
+                    last_list.remove(j)
+                    del j
+            del target_node
+            if len(tn_parent.child_inds) != 0:
+                tn_parent.num_child -= 1
+            else:
+                tn_parent.is_child = 1
+                last_list.append(tn_parent)
+            return lets_prune (new_acc)
+        else:
+            tn_parent.child_nodes[i] = target_node  #restoring back the node
+            for i, j in target_node.child_nodes.items():
+                if j in last_list:
+                    j.visited = 1
+            return lets_prune (prev_acc)
 
 if __name__ == "__main__":
     indices = []
@@ -140,6 +160,8 @@ if __name__ == "__main__":
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
     print ("Num children", len(last_list))
     val_acc = all_data (tree_root, valid_data, valid_labels)
+    print ("Previous accuracy: ", val_acc)
+    prunelist = last_list
     lets_prune (val_acc)
     #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
     print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
