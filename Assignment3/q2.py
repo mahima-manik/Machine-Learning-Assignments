@@ -2,6 +2,7 @@ from read_data1 import *
 from helper import *
 import math, time, copy
 import matplotlib.pyplot as plt
+from operator import itemgetter
 
 data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
 num_nodes = 0
@@ -34,7 +35,7 @@ def grow_tree( target_node ):
     ig, feature_index, child_node_d = highest_ig(target_node.indices, target_node.ununsed_attr)
     if (ig == 0):
         target_node.is_child = 1
-        last_list.append(target_node)
+        last_list.append((target_node, target_node.height))
         return
     
     else:
@@ -88,55 +89,40 @@ def all_data (target_node, data, label):
         acc += one_data (target_node, d, l)
     return (100 * float(acc) / len(label))
 
-
-def lets_prune (prev_acc):
-    global last_list, tree_root
-    
-    ''' High_ht will contain the node the the longest height '''
-    high_ht = (None, 0)
-    
-    for item in last_list:
-        if item.height > high_ht[1] and item.visited == 0:
-            high_ht = (item, item.height)
-
-    if high_ht[0] == None:      #All the nodes are visited
-        print ("coming")
-        return
-    else:
-        my_node = high_ht[0]
-        target_node = my_node.parent
-        target_node.visited = 1
-        my_node.visited = 1
-        tn_parent = target_node.parent
+def lets_prune (prunelist, prev_acc):
+    global tree_root
+    if len(prunelist) != 0:
+        #print (len(prunelist)),
+        ''' High_ht will contain the node the the longest height '''
+        high_ht = max(prunelist, key=itemgetter(1))[0]
+        
+        target_node = high_ht.parent
+        
+        val = None
         ''' search for the target_node in the list of child nodes '''
-        for i, j in tn_parent.child_nodes.items():
-            if j == target_node:
-                del tn_parent.child_nodes[i]
+        for i, j in target_node.child_nodes.items():
+            if j == high_ht:
+                val = i
                 break
-
+        del target_node.child_nodes[val]
         new_acc = all_data (tree_root, valid_data, valid_labels)
-        tacc =  all_data (tree_root, train_data, train_labels)
+        
         if new_acc > prev_acc:
-            print (new_acc, tacc)
-            del tn_parent.child_inds[i]
-            last_list.remove(my_node)
-            for i, j in target_node.child_nodes.items():
-                if j in last_list:
-                    last_list.remove(j)
-                    del j
-            del target_node
-            if len(tn_parent.child_inds) != 0:
-                tn_parent.num_child -= 1
+            print (new_acc, len(prunelist))
+            del target_node.child_inds[val]
+            
+            if len(target_node.child_inds) != 0:
+                target_node.num_child -= 1
             else:
-                tn_parent.is_child = 1
-                last_list.append(tn_parent)
-            return lets_prune (new_acc)
+                target_node.is_child = 1
+                prunelist.append((target_node, target_node.height))
+            
+            prunelist.remove((high_ht, high_ht.height))
+            return lets_prune (prunelist, new_acc)
         else:
-            tn_parent.child_nodes[i] = target_node  #restoring back the node
-            for i, j in target_node.child_nodes.items():
-                if j in last_list:
-                    j.visited = 1
-            return lets_prune (prev_acc)
+            target_node.child_nodes[val] = high_ht  #restoring back the node
+            prunelist.remove((high_ht, high_ht.height))
+            return lets_prune (prunelist, prev_acc)
 
 if __name__ == "__main__":
     indices = []
@@ -156,17 +142,20 @@ if __name__ == "__main__":
     '''
     grow_tree (tree_root)
     #print ("Training accuracy", one_data (tree_root, train_data[0], train_labels[0]))
-    
+       
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
     print ("Num children", len(last_list))
     val_acc = all_data (tree_root, valid_data, valid_labels)
     print ("Previous accuracy: ", val_acc)
-    prunelist = last_list
-    lets_prune (val_acc)
+    prunelist = copy.copy(last_list)
+    lets_prune (prunelist, val_acc)
     #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
-    print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
+    #print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
     #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
     #print (len(train_acc))
+    
+    
+    
     '''
     plt.title("Testing Accuracy")
     plt.xlabel("Number of Nodes")
