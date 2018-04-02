@@ -7,7 +7,7 @@ data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number
 num_nodes = 0
 max_ht = 0
 train_acc = []
-last_list = []
+last_list = []      #list of leaf nodes of the tree
 
 ''' child_inds : Dictionary of all children nodes and value is correspoding indices to those children '''
 ''' child_nodes : Dictionary of all children nodes and value is correspoding Tree_Node objectsa of those children '''
@@ -27,13 +27,14 @@ class Tree_Node:
         self.predicted = p      #what value 0/1 is being predicted at this node
         self.ununsed_attr = inds_attr
         self.parent = parent
-        self.visited = 0        
+        self.visited = 0        #node visited while pruning or not    
 
 def grow_tree( target_node ):
-    global num_nodes, max_ht
+    global num_nodes, max_ht, last_list
     ig, feature_index, child_node_d = highest_ig(target_node.indices, target_node.ununsed_attr)
     if (ig == 0):
         target_node.is_child = 1
+        last_list.append(target_node)
         return
     
     else:
@@ -43,6 +44,7 @@ def grow_tree( target_node ):
             cnode = make_node(value, cheight, inds_attr, target_node)
             target_node.child_nodes[key] = cnode
             grow_tree ( target_node.child_nodes[key] )
+        
         return
         
 def make_node(indices, height, inds_attr, myparent):
@@ -64,7 +66,6 @@ def make_node(indices, height, inds_attr, myparent):
     return my_root
 
 def one_data (target_node, data, label):
-    print (data_attributes[target_node.split_feature])
     if target_node.is_child == 1:
         if label == target_node.predicted:
             return 1
@@ -87,6 +88,36 @@ def all_data (target_node, data, label):
         acc += one_data (target_node, d, l)
     return (100 * float(acc) / len(label))
 
+def remove_node (target_node):
+    
+        
+            
+
+def lets_prune (prev_acc):
+    global last_list, tree_root
+    ''' High_ht will contain the node the the longest height '''
+    high_ht = (None, 0)
+    
+    for i in last_list:
+        if i.height > high_ht[1]:
+            high_ht = (i, i.height)
+
+    target_node = high_ht[0].parent
+    target_node.visited = 1
+
+    tn_parent = target_node.parent
+    ''' search for the target_node in the list of child nodes '''
+    for i, j in tn_parent.child_nodes:
+        if j == target_node:
+            del tn.parent.child_nodes[i]
+            break
+
+    new_acc = all_data (tree_root, valid_data, valid_labels)
+    if new_acc > prev_acc:
+        del tn_parent.child_inds[i]
+        if len(tn_parent.child_inds) != 0:
+            lets_prune (new_acc)
+
 if __name__ == "__main__":
     indices = []
     for i in range(len(train_labels)):
@@ -107,8 +138,11 @@ if __name__ == "__main__":
     #print ("Training accuracy", one_data (tree_root, train_data[0], train_labels[0]))
     
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
+    print ("Num children", len(last_list))
+    val_acc = all_data (tree_root, valid_data, valid_labels)
+    lets_prune (val_acc)
     #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
-    #print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
+    print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
     #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
     #print (len(train_acc))
     '''

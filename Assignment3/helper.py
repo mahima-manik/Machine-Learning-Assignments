@@ -1,10 +1,12 @@
 import math, time
 from read_data1 import *
+from q1 import *
 
 ''' Returns net entropy '''
 def entropy(indices):
     arr_size = len(indices)
     ''' Creating dictionary for each distinct values in labels whose index is present in indices 
+    0 and 1 are labels
     d = {0: 20299, 1: 6701}
     '''
     d = {}
@@ -58,7 +60,7 @@ def highest_ig(indices, attr_list):
                 d_max = d
                 feature_index = i
         
-        #print ("Information gain", (h_y - net_ent))
+        #print ("Information gain", data_attributes[i], (h_y - net_ent))
     #print ("Feature chosen:", data_attributes[feature_index])
     #print (ig_max)
     return ig_max, feature_index, d_max

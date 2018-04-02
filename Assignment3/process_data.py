@@ -128,6 +128,9 @@ if __name__ == "__main__":
         indices.append(i)
 
     tree_root = make_root(indices)
-    grow_tree (tree_root)
-    print ("Total Nodes", num_nodes, '\n\n')
+    print (data_attributes[tree_root.split_feature])
+    for i, j in tree_root.child_inds.items():
+        print (i, len(j))
+    #grow_tree (tree_root)
+    #print ("Total Nodes", num_nodes, '\n\n')
     #print_tree(tree_root)
