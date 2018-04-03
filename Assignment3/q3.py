@@ -1,7 +1,6 @@
-from read_data1 import *
+from read_data import *
 from helper import *
 import math, time, copy, sys
-#import matplotlib.pyplot as plt
 from operator import itemgetter
 
 sys.setrecursionlimit(5000)
@@ -127,6 +126,7 @@ def lets_prune (prunelist, prev_acc):
         if len(prunelist) > 0:
             return lets_prune (prunelist, prev_acc)
 
+
 if __name__ == "__main__":
     indices = []
     for i in range(len(train_labels)):
@@ -136,15 +136,15 @@ if __name__ == "__main__":
     for i in range(14):
         inds_attr.append(1)
 
-    tree_root = make_node (indices, 0, inds_attr, None)
+    #tree_root = make_node (indices, 0, inds_attr, None)
     '''
     #To print the child attributes of the root
     for i, j in tree_root.child_inds.items():
         ig, feature_index, child_node_d = highest_ig(j, tree_root.ununsed_attr)
         print (data_attributes[feature_index])
     '''
-    grow_tree (tree_root)
-    #print ("Training accuracy", one_data (tree_root, train_data[0], train_labels[0]))
+    #grow_tree (tree_root)
+    print ("Training accuracy", one_data (tree_root, train_data[0], train_labels[0]))
        
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
     print ("Num children", len(last_list))

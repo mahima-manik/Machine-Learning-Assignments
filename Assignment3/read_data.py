@@ -39,7 +39,7 @@ def medians(file):
     """
     fin = open(file,"r")
     reader = csv.reader(fin)
-    ''' ALl the continuous attributes, there are six of them '''
+    ''' ALl the continous attributes, there are six of them '''
     age, fnlwgt, edun, capg, capl, hpw = ([] for i in range(6))
     total = 0
     for row in reader:
@@ -69,7 +69,7 @@ def preprocess(file):
         2D numpy array with the data
     """
     # Calculate the medians
-    agem, fnlwgtm, edunm, capgm, caplm, hpwm = medians(file)
+    # agem, fnlwgtm, edunm, capgm, caplm, hpwm = medians(file)
     fin = open(file,"r")
     reader = csv.reader(fin)
     data = []
@@ -93,11 +93,15 @@ def preprocess(file):
         
         # Binarize the numerical attributes based on median.
         # Modify this section to read the file in part c where you split the continuos attributes baed on dynamic median values.
+        '''
         t[1] = float(l[0])>=agem; t[3] = float(l[2])>=fnlwgtm; t[5] = float(l[4])>=edunm;
         t[11] = float(l[10])>=capgm; t[12] = float(l[11])>=caplm; t[13] = float(l[12])>=hpwm;
-        
+        '''
+
+        t[1] = float(l[0]); t[3] = float(l[2]); t[5] = float(l[4]);
+        t[11] = float(l[10]); t[12] = float(l[11]); t[13] = float(l[12]);
         # Convert some of the booleans to ints
-        data.append([int(x) for x in t])
+        data.append([x for x in t])
     
     return np.array(data,dtype=np.int64), np.array(label,dtype=np.int64).reshape(len(label), 1)
 
@@ -105,3 +109,6 @@ def preprocess(file):
 train_data, train_labels = preprocess("dtree_data/train.csv")
 valid_data, valid_labels = preprocess("dtree_data/valid.csv")
 test_data, test_labels = preprocess("dtree_data/test.csv")
+
+for i in range (10):
+    print (train_data [i])
