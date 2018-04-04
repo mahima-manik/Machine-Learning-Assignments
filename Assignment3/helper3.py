@@ -1,6 +1,6 @@
-import math, time
+import math, time, statistics
 from read_data1 import *
-from q1 import *
+from q3 import *
 
 ''' Returns net entropy '''
 def entropy(indices):
@@ -30,19 +30,30 @@ def highest_ig(indices, attr_list):
     ig_max = 0
     d_max = None
     feature_index = None
+    max_feature_med = None
+    feature_med = None
     for i in range(14):   
         if attr_list[i] == 1:     
             ''' Extracting ith feature column from the data '''
             feature = train_data[:,i]
-            
             ''' d contains list of those indices which has same feature value '''
             d = {}
-            
-            for ind in indices:
-                if feature[ind] in d :
-                    d[feature[ind]].append(ind)
-                else :
-                    d[feature[ind]] = [ind]
+
+            ''' if the feature selected is a continuous feature '''
+            if i in cont_list:
+               feature_med = statistics.median(feature)
+               for ind in indices:
+                    temp = (float(feature[ind]) >= feature_med) 
+                    if temp in d :
+                        d[temp].append(ind)
+                    else :
+                        d[temp] = [ind]
+            else:
+                for ind in indices:
+                    if feature[ind] in d :
+                        d[feature[ind]].append(ind)
+                    else :
+                        d[feature[ind]] = [ind]
             
             if (d_max == None or feature_index == None):
                 d_max = d
@@ -59,11 +70,15 @@ def highest_ig(indices, attr_list):
                 ig_max = ( h_y - net_ent )
                 d_max = d
                 feature_index = i
+                max_feature_med = feature_med
         
         #print ("Information gain", data_attributes[i], (h_y - net_ent))
     #print ("Feature chosen:", data_attributes[feature_index])
     #print (ig_max)
-    return ig_max, feature_index, d_max
+    if feature_index in cont_list:
+        return ig_max, feature_index, d_max, max_feature_med
+    else:
+        return ig_max, feature_index, d_max, None
 
 
 #what value 0/1 is being predicted at this node, accuracy
