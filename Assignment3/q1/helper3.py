@@ -32,17 +32,23 @@ def highest_ig(indices, attr_list):
     feature_index = None
     max_feature_med = None
     feature_med = None
+    
     for i in range(14):   
         if attr_list[i] == 1:     
             ''' Extracting ith feature column from the data '''
             feature = train_data[:,i]
             ''' d contains list of those indices which has same feature value '''
             d = {}
-
+            
             ''' if the feature selected is a continuous feature '''
             if i in cont_list:
-               feature_med = statistics.median(feature)
-               for ind in indices:
+                ind_features = []
+                for ind in indices:
+                    ind_features.append( train_data[ind][i] )
+                    #print (ind, train_data[ind][i])
+                feature_med = statistics.median(ind_features)
+                print (i, feature_med)
+                for ind in indices:
                     temp = (float(feature[ind]) >= feature_med) 
                     if temp in d :
                         d[temp].append(ind)

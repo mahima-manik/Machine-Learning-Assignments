@@ -2,6 +2,7 @@ from read_data import *
 from helper3 import *
 import math, time, copy, sys
 from operator import itemgetter
+import numpy as np
 
 sys.setrecursionlimit(5000)
 data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
@@ -34,7 +35,7 @@ class Tree_Node:
 
 def grow_tree( target_node ):
     global num_nodes, max_ht, last_list
-    ig, feature_index, child_node_d, feature_med = highest_ig(target_node.indices, target_node.ununsed_attr)
+    ig = highest_ig(target_node.indices, target_node.ununsed_attr)[0]
     if (ig == 0):
         target_node.is_child = 1
         last_list.append((target_node, target_node.height))
@@ -56,7 +57,7 @@ def make_node(indices, height, inds_attr, myparent):
     ig, feature_index, child_node_d, feature_med = highest_ig(indices, inds_attr)
     acc = get_accuracy(indices)
     my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0], inds_attr, myparent, feature_med)
-    if feature_index != None and (feature_index not in cont_list):
+    if (feature_index != None and feature_med != None):
         my_root.ununsed_attr[feature_index] = 0
     
     if height > max_ht:
@@ -65,29 +66,23 @@ def make_node(indices, height, inds_attr, myparent):
     #if num_nodes > 1:
         #print (num_nodes)
     #    train_acc.append(all_data (tree_root, test_data, test_labels))
-
-    print (num_nodes)
+    #print (num_nodes, feature_index, feature_med)
     return my_root
 
 def one_data (target_node, data, label):
     if target_node.is_child == 1:
-        if label == target_node.predicted:
-            return 1
-        else:
-            return 0
+        return (label == target_node.predicted)
     else:
         val = target_node.split_feature
         if val in cont_list:
             my_val = float(data[val]) >= target_node.med_split_feature
         else:
             my_val = data[val]
+        
         if my_val in target_node.child_nodes:
             return one_data (target_node.child_nodes[my_val], data, label)
         else:
-            if target_node.predicted == label:
-                return 1
-            else:
-                return 0
+            return (target_node.predicted == label)
 
 def all_data (target_node, data, label):
     acc = 0
@@ -97,13 +92,9 @@ def all_data (target_node, data, label):
 
 
 if __name__ == "__main__":
-    indices = []
-    for i in range(len(train_labels)):
-        indices.append(i)
+    indices = list(np.arange(0, len(train_labels)))
 
-    inds_attr = []
-    for i in range(14):
-        inds_attr.append(1)
+    inds_attr = [1]*14
 
     tree_root = make_node (indices, 0, inds_attr, None)
     '''
@@ -112,7 +103,7 @@ if __name__ == "__main__":
         ig, feature_index, child_node_d = highest_ig(j, tree_root.ununsed_attr)
         print (data_attributes[feature_index])
     '''
-    grow_tree (tree_root)
+    #grow_tree (tree_root)
     print ("Training accuracy", all_data (tree_root, train_data, train_labels))
     print ("Validation accuracy" ,all_data (tree_root, valid_data, valid_labels))
     print ("Testing accuracy", all_data (tree_root, test_data, test_labels))

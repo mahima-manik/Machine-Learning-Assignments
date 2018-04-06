@@ -1,14 +1,21 @@
+'''
+Total Nodes 358
+Validation accuracy 80.7 -> 84.53333333333333
+'''
+
 from read_data1 import *
 from helper import *
 import math, time, copy, sys
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from operator import itemgetter
 
-sys.setrecursionlimit(5000)
+sys.setrecursionlimit(7000)
 data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
 num_nodes = 0
 max_ht = 0
 train_acc = []
+valid_acc = []
+test_acc = []
 last_list = []      #list of leaf nodes of the tree
 
 ''' child_inds : Dictionary of all children nodes and value is correspoding indices to those children '''
@@ -89,7 +96,7 @@ def all_data (target_node, data, label):
     return (100 * float(acc) / len(label))
 
 def lets_prune (prunelist, prev_acc):
-    global num_nodes
+    global num_nodes, train_acc, valid_acc, test_acc
     ''' High_ht will contain the node the the longest height '''
     high_ht = max(prunelist, key=itemgetter(1))[0]
     #print (len(prunelist), max(prunelist, key=itemgetter(1))[1])
@@ -105,10 +112,13 @@ def lets_prune (prunelist, prev_acc):
     del target_node.child_nodes[val]
     new_acc = all_data (tree_root, valid_data, valid_labels)
     
-    if new_acc > prev_acc:
+    if new_acc >= prev_acc:
         
         print (new_acc, len(prunelist), max(prunelist, key=itemgetter(1))[1])
         del target_node.child_inds[val]
+        valid_acc.append(new_acc)
+        train_acc.append(all_data (tree_root, train_data, train_labels))
+        test_acc.append(all_data (tree_root, test_data, test_labels))
         target_node.num_child -= 1
         num_nodes -= 1
         if len(target_node.child_nodes) == 0:
@@ -158,3 +168,11 @@ if __name__ == "__main__":
     print ("Validation accuracy", val_acc ,all_data (tree_root, valid_data, valid_labels))
     #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
     #print (len(train_acc))
+    plt.title("Accuracies")
+    plt.xlabel("Number of Nodes")
+    plt.ylabel("Accuracy")
+    plt.plot(train_acc, color="red", label="Train Accuracy")
+    plt.plot(test_acc, color="blue", label="Testing Accuracy")
+    plt.plot(valid_acc, color="green", label="Validation Accuracy")
+    plt.legend()
+    plt.show()

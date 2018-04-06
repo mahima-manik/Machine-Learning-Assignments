@@ -103,12 +103,12 @@ def preprocess(file):
         # Convert some of the booleans to ints
         data.append([x for x in t])
     
-    return np.array(data,dtype=np.int64), np.array(label,dtype=np.int64).reshape(len(label), 1)
+    return np.array(data,dtype=np.int64)
 
 ## Read the data
-train_data, train_labels = preprocess("dtree_data/train.csv")
-valid_data, valid_labels = preprocess("dtree_data/valid.csv")
-test_data, test_labels = preprocess("dtree_data/test.csv")
+train_data = preprocess("dtree_data/train.csv")
+valid_data = preprocess("dtree_data/valid.csv")
+test_data = preprocess("dtree_data/test.csv")
 
 train_labels = train_data[:,0]
 train_data = np.delete(train_data, 0, 1)
