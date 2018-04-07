@@ -31,6 +31,8 @@ class Tree_Node:
 
 def grow_tree( target_node ):
     global num_nodes, max_ht
+    if (target_node.height == 1):
+        print ("New Branch")
     ig, feature_index, child_node_d = highest_ig(target_node.indices, target_node.ununsed_attr)
     if (ig == 0):
         target_node.is_child = 1
@@ -51,9 +53,10 @@ def make_node(indices, height, inds_attr, myparent):
     num_nodes += 1
     ig, feature_index, child_node_d = highest_ig(indices, inds_attr)
     acc = get_accuracy(indices)
+    
     my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0], inds_attr, myparent)    
-    if feature_index != None:
-        my_root.ununsed_attr[feature_index] = 0
+    #if feature_index != None:
+    #    my_root.ununsed_attr[feature_index] = 0
     
     if height > max_ht:
         max_ht = height
@@ -61,6 +64,7 @@ def make_node(indices, height, inds_attr, myparent):
     #if num_nodes > 1:
         #print (num_nodes)
     #    train_acc.append(all_data (tree_root, test_data, test_labels))
+    print (my_root.ununsed_attr)
     return my_root
 
 def one_data (target_node, data, label):

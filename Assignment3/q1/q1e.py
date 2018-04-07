@@ -1,9 +1,8 @@
 #I am here update
-
-from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
 from read_data import *
 
-clf = tree.DecisionTreeClassifier(criterion="entropy", max_depth=1, min_samples_split=3, min_samples_leaf=4)
+clf = RandomForestClassifier(criterion="entropy", max_depth=1, min_samples_split=3, min_samples_leaf=4, max_features=10, n_estimators=10)
 model = clf.fit(train_data, train_labels)
 
 '''

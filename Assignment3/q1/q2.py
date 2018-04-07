@@ -1,6 +1,6 @@
 '''
-Total Nodes 358
-Validation accuracy 80.7 -> 84.53333333333333
+Total Nodes 454
+Validation accuracy 79.93333333333334 -> 85.0
 '''
 
 from read_data1 import *
@@ -9,7 +9,7 @@ import math, time, copy, sys
 import matplotlib.pyplot as plt
 from operator import itemgetter
 
-sys.setrecursionlimit(7000)
+sys.setrecursionlimit(10000)
 data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number", "Marital Status", "Occupation", "Relationship", "Race", "Sex", "Capital Gain", "Capital Loss", "Hour per Week", "Native Country"]
 num_nodes = 0
 max_ht = 0
@@ -61,8 +61,8 @@ def make_node(indices, height, inds_attr, myparent):
     ig, feature_index, child_node_d = highest_ig(indices, inds_attr)
     acc = get_accuracy(indices)
     my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0], inds_attr, myparent)    
-    if feature_index != None:
-        my_root.ununsed_attr[feature_index] = 0
+    #if feature_index != None:
+    #    my_root.ununsed_attr[feature_index] = 0
     
     if height > max_ht:
         max_ht = height
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
     #print (len(train_acc))
     plt.title("Accuracies")
-    plt.xlabel("Number of Nodes")
+    plt.xlabel("Nodes Pruned")
     plt.ylabel("Accuracy")
     plt.plot(train_acc, color="red", label="Train Accuracy")
     plt.plot(test_acc, color="blue", label="Testing Accuracy")

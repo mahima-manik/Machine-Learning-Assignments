@@ -1,3 +1,9 @@
+'''
+Number of nodes: 15196
+Training accuracy: 98.66666666666667
+Validation accuracy: 79.2
+Testing accuracy: 78.1
+'''
 from read_data import *
 from helper3 import *
 import math, time, copy, sys
@@ -34,11 +40,11 @@ class Tree_Node:
         self.med_split_feature = med
 
 def grow_tree( target_node ):
-    global num_nodes, max_ht, last_list
+    
     ig = highest_ig(target_node.indices, target_node.ununsed_attr)[0]
+    
     if (ig == 0):
         target_node.is_child = 1
-        last_list.append((target_node, target_node.height))
         return
     
     else:
@@ -52,12 +58,11 @@ def grow_tree( target_node ):
 
 def make_node(indices, height, inds_attr, myparent):
     global num_nodes, max_ht
-    global tree_root
     num_nodes += 1
     ig, feature_index, child_node_d, feature_med = highest_ig(indices, inds_attr)
     acc = get_accuracy(indices)
     my_root = Tree_Node (child_node_d , 0, feature_index, height, indices, acc[0], inds_attr, myparent, feature_med)
-    if (feature_index != None and feature_med != None):
+    if (feature_index != None and (feature_index not in cont_list)):
         my_root.ununsed_attr[feature_index] = 0
     
     if height > max_ht:
@@ -66,7 +71,7 @@ def make_node(indices, height, inds_attr, myparent):
     #if num_nodes > 1:
         #print (num_nodes)
     #    train_acc.append(all_data (tree_root, test_data, test_labels))
-    #print (num_nodes, feature_index, feature_med)
+    print (num_nodes, feature_index, feature_med)
     return my_root
 
 def one_data (target_node, data, label):
@@ -103,7 +108,7 @@ if __name__ == "__main__":
         ig, feature_index, child_node_d = highest_ig(j, tree_root.ununsed_attr)
         print (data_attributes[feature_index])
     '''
-    #grow_tree (tree_root)
+    grow_tree (tree_root)
     print ("Training accuracy", all_data (tree_root, train_data, train_labels))
     print ("Validation accuracy" ,all_data (tree_root, valid_data, valid_labels))
     print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
