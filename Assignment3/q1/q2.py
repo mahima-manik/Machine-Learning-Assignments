@@ -16,8 +16,8 @@ max_ht = 0
 train_acc = []
 valid_acc = []
 test_acc = []
+count = []
 last_list = []      #list of leaf nodes of the tree
-
 ''' child_inds : Dictionary of all children nodes and value is correspoding indices to those children '''
 ''' child_nodes : Dictionary of all children nodes and value is correspoding Tree_Node objectsa of those children '''
 ''' split_feature : feature that gives the maximum IG value for that node '''
@@ -96,7 +96,7 @@ def all_data (target_node, data, label):
     return (100 * float(acc) / len(label))
 
 def lets_prune (prunelist, prev_acc):
-    global num_nodes, train_acc, valid_acc, test_acc
+    global num_nodes, train_acc, valid_acc, test_acc, count
     ''' High_ht will contain the node the the longest height '''
     high_ht = max(prunelist, key=itemgetter(1))[0]
     #print (len(prunelist), max(prunelist, key=itemgetter(1))[1])
@@ -116,9 +116,11 @@ def lets_prune (prunelist, prev_acc):
         
         print (new_acc, len(prunelist), max(prunelist, key=itemgetter(1))[1])
         del target_node.child_inds[val]
-        valid_acc.append(new_acc)
-        train_acc.append(all_data (tree_root, train_data, train_labels))
-        test_acc.append(all_data (tree_root, test_data, test_labels))
+        if ( len(prunelist)%50 == 0 ):
+            valid_acc.append(new_acc)
+            train_acc.append(all_data (tree_root, train_data, train_labels))
+            test_acc.append(all_data (tree_root, test_data, test_labels))
+            count.append(len(prunelist))
         target_node.num_child -= 1
         num_nodes -= 1
         if len(target_node.child_nodes) == 0:
@@ -164,15 +166,14 @@ if __name__ == "__main__":
     lets_prune (prunelist, val_acc)
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
     
-    #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
+    print ("Training accuracy", all_data (tree_root, train_data, train_labels))
     print ("Validation accuracy", val_acc ,all_data (tree_root, valid_data, valid_labels))
-    #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
-    #print (len(train_acc))
+    print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
     plt.title("Accuracies")
     plt.xlabel("Nodes Pruned")
     plt.ylabel("Accuracy")
-    plt.plot(train_acc, color="red", label="Train Accuracy")
-    plt.plot(test_acc, color="blue", label="Testing Accuracy")
-    plt.plot(valid_acc, color="green", label="Validation Accuracy")
+    plt.plot(count, train_acc, color="red", label="Train Accuracy")
+    plt.plot(count, test_acc, color="blue", label="Testing Accuracy")
+    plt.plot(count, valid_acc, color="green", label="Validation Accuracy")
     plt.legend()
     plt.show()

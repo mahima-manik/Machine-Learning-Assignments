@@ -1,3 +1,10 @@
+'''
+Also printing the graph at the end
+Total Nodes - 7902, 11
+Training accuracy 88.93333333333334
+Validation accuracy 79.93333333333334
+Testing accuracy 80.67142857142858
+'''
 from read_data1 import *
 from helper import *
 import math, time, copy
@@ -7,8 +14,10 @@ data_attributes = ["Age", "Work Class", "Fnlwgt", "Education", "Education Number
 num_nodes = 0
 max_ht = 0
 train_acc = []
+valid_acc = []
+test_acc = []
 last_list = []
-
+count = []
 ''' child_inds : Dictionary of all children nodes and value is correspoding indices to those children '''
 ''' child_nodes : Dictionary of all children nodes and value is correspoding Tree_Node objectsa of those children '''
 ''' split_feature : feature that gives the maximum IG value for that node '''
@@ -31,8 +40,7 @@ class Tree_Node:
 
 def grow_tree( target_node ):
     global num_nodes, max_ht
-    if (target_node.height == 1):
-        print ("New Branch")
+    
     ig, feature_index, child_node_d = highest_ig(target_node.indices, target_node.ununsed_attr)
     if (ig == 0):
         target_node.is_child = 1
@@ -48,7 +56,7 @@ def grow_tree( target_node ):
         return
         
 def make_node(indices, height, inds_attr, myparent):
-    global num_nodes, max_ht
+    global num_nodes, max_ht, train_acc, valid_acc, test_acc, count
     global tree_root
     num_nodes += 1
     ig, feature_index, child_node_d = highest_ig(indices, inds_attr)
@@ -61,14 +69,16 @@ def make_node(indices, height, inds_attr, myparent):
     if height > max_ht:
         max_ht = height
     
-    #if num_nodes > 1:
+    if num_nodes > 1 and (num_nodes%20==0):
         #print (num_nodes)
-    #    train_acc.append(all_data (tree_root, test_data, test_labels))
-    print (my_root.ununsed_attr)
+        count.append(num_nodes)
+        train_acc.append(all_data (tree_root, train_data, train_labels))
+        valid_acc.append(all_data (tree_root, valid_data, valid_labels))
+        test_acc.append(all_data (tree_root, test_data, test_labels))
     return my_root
 
 def one_data (target_node, data, label):
-    print (data_attributes[target_node.split_feature])
+    #print (data_attributes[target_node.split_feature])
     if target_node.is_child == 1:
         if label == target_node.predicted:
             return 1
@@ -108,18 +118,18 @@ if __name__ == "__main__":
         print (data_attributes[feature_index])
     '''
     grow_tree (tree_root)
-    #print ("Training accuracy", one_data (tree_root, train_data[0], train_labels[0]))
     
     print ("Total Nodes", num_nodes, max_ht ,'\n\n')
-    #print ("Training accuracy", all_data (tree_root, train_data, train_labels))
-    #print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
-    #print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
-    #print (len(train_acc))
-    '''
-    plt.title("Testing Accuracy")
+    print ("Training accuracy", all_data (tree_root, train_data, train_labels))
+    print ("Validation accuracy", all_data (tree_root, valid_data, valid_labels))
+    print ("Testing accuracy", all_data (tree_root, test_data, test_labels))
+    
+    plt.title("Plotting Accuracies vs Number of nodes")
     plt.xlabel("Number of Nodes")
     plt.ylabel("Accuracy")
-    plt.plot(train_acc, color="red", label="Accuracy")
+    plt.plot(count, train_acc, color="green", label="Training")
+    plt.plot(count, valid_acc, color="blue", label="Validation")
+    plt.plot(count, test_acc, color="red", label="Testing")
     plt.legend()
     plt.show()
-    '''
+    

@@ -1,6 +1,7 @@
 """
 This script gives you the plotting functions for part (b) for Neural net part of assignment 3
 """
+#from q2 import *
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,3 +34,7 @@ def plot_decision_boundary(model, X, y):
     plt.ylabel('x2')
     plt.xlabel('x1')
     plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Spectral)
+
+#plot_decision_boundary(plot_model, np.array([np.array(xi) for xi in data_x]), np.asarray(data_y))
+#plt.title("Training")
+#plt.show()
